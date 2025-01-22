@@ -11,21 +11,22 @@ import { UserModule } from 'src/user/user.module';
 
 @Module({
   imports: [
+    PrismaModule,
+    UserModule,
     ConfigModule,
     PassportModule,
     JwtModule.registerAsync({
       imports: [ConfigModule],
+      inject: [ConfigService],
       useFactory: async (configService: ConfigService) => ({
         secret: configService.get<string>('JWT_SECRET'),
-        signOptions: { expiresIn: '1h' },
       }),
-      inject: [ConfigService],
     }),
-    PrismaModule,
-    UserModule
   ],
   controllers: [AuthController],
   providers: [AuthService, GoogleStrategy, PrismaService],
   exports: [AuthService],
 })
-export class AuthModule {}
+export class AuthModule {
+  
+}

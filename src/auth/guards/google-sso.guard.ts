@@ -29,11 +29,13 @@ export class GoogleSSOGuard extends AuthGuard('google') implements CanActivate {
   }
 
   getAuthenticateOptions(context: ExecutionContext) {
+
+
     const req = context.switchToHttp().getRequest();
 
     return {
       state: {
-        redirect_uri: req.query.redirect_uri,
+        redirect_uri: req.query.redirect_uri || this.configService.get('REDIRECT_URL'),
       },
     };
   }

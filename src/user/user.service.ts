@@ -137,6 +137,8 @@ export class UserService {
       },
     });
 
+    console.log('Created User: ', createdUser);
+
     return createdUser;
   }
 
@@ -254,7 +256,7 @@ export class UserService {
     
     /**
    * Update user's lastLoggedOn timestamp
-   * @param userUID User UID
+   * @param userID User ID
    */
   async updateUserLastLoggedOn(userId: number) {
     try {
@@ -314,7 +316,7 @@ export class UserService {
     async getUsersCount() {
         const usersCount = await this.prisma.user.count();
         return usersCount;
-      }
+  }
 
 
       /**

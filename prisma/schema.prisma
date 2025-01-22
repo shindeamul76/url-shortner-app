@@ -40,11 +40,15 @@ model Account {
 }
 
 model ShortURL {
-  id         Int      @id @default(autoincrement())
-  longUrl    String
-  shortAlias String   @unique
-  topic      String?
-  createdAt  DateTime @default(now())
+  id           Int       @id @default(autoincrement())
+  longUrl      String
+  shortAlias   String    @unique
+  topic        Topic?
+  description  String?
+  createdAt    DateTime  @default(now())
+  lastAccessed DateTime? @db.Timestamp(3)
+  expiresAt    DateTime? @db.Timestamp(3)
+  clicks       Int       @default(0)
 
   userID       Int
   user         User          @relation(fields: [userID], references: [id])
@@ -54,11 +58,20 @@ model ShortURL {
   // topic is optional; consider using an enum if the number of topics (e.g., acquisition, activation, retention) is fixed.
 }
 
+enum Topic {
+  acquisition
+  activation
+  retention
+}
+
 model RedirectLog {
   id          Int      @id @default(autoincrement())
   timestamp   DateTime @default(now())
   userAgent   String
   ipAddress   String
+  country     String?
+  region      String?
+  city        String?
   geoLocation String?
   osName      String?
   deviceType  String?
@@ -71,9 +84,11 @@ model RedirectLog {
 }
 
 model RateLimit {
-  id              Int      @id @default(autoincrement())
+  id              Int       @id @default(autoincrement())
   requestCount    Int
+  maxRequests     Int
   timeWindowStart DateTime
+  timeWindowEnd   DateTime?
 
   userID Int  @unique
   user   User @relation(fields: [userID], references: [id])

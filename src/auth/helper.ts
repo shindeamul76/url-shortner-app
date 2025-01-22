@@ -3,7 +3,7 @@ import { AUTH_PROVIDER_NOT_SPECIFIED } from "src/errors";
 import { AuthTokens, AuthTokenType } from "src/types/AuthTokens";
 import { throwErr } from "src/utils";
 import { DateTime } from 'luxon';
-import { StatusCodes } from 'http-status-code';
+import { StatusCodes } from 'http-status-codes';
 import { Response } from "express";
 
 
@@ -20,12 +20,15 @@ export function authProviderCheck(
     if (!provider) {
       throwErr(AUTH_PROVIDER_NOT_SPECIFIED);
     }
-  
+
+
+
     const envVariables = ALLOWED_AUTH_PROVIDERS
       ? ALLOWED_AUTH_PROVIDERS.split(',').map((provider) =>
           provider.trim().toUpperCase(),
         )
       : [];
+
   
     if (!envVariables.includes(provider.toUpperCase())) return false;
   
