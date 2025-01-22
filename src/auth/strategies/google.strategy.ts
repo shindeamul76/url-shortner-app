@@ -5,6 +5,7 @@ import { ConfigService } from '@nestjs/config';
 import * as O from 'fp-ts/Option';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { UserService } from 'src/user/user.service';
+import { cons } from 'fp-ts/lib/ReadonlyNonEmptyArray';
 
 @Injectable()
 export class GoogleStrategy extends PassportStrategy(Strategy) {
@@ -30,7 +31,7 @@ export class GoogleStrategy extends PassportStrategy(Strategy) {
     profile: any,
     done: VerifyCallback,
   ) {
-    console.log('Full Profile:', JSON.stringify(profile, null, 2));
+    // console.log('Full Profile:', JSON.stringify(profile, null, 2));
   
     const emails = profile?.emails;
     if (!emails || !Array.isArray(emails) || emails.length === 0) {
@@ -38,6 +39,9 @@ export class GoogleStrategy extends PassportStrategy(Strategy) {
     }
   
     const email = emails[0]?.value;
+
+    // console.log('Email: ', email);
+
     if (!email) {
       return done(new Error('Email is undefined in Google profile'), null);
     }
