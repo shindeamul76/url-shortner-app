@@ -4,12 +4,13 @@ FROM node:20-alpine AS base
 # Set the working directory
 WORKDIR /usr/src/app
 
-# Install Yarn globally
-RUN npm install -g yarn
+# Install Yarn globally if necessary
+# (Remove this line if yarn is preinstalled in the base image)
+RUN npm install -g yarn --force
 
 # Copy the package files and install dependencies
 COPY package.json yarn.lock ./
-RUN yarn install --development
+RUN yarn install --production=false
 
 # Copy the entire project
 COPY . .
@@ -17,10 +18,11 @@ COPY . .
 # Build the application
 RUN yarn build
 
-# development stage
+# -------------------------------------
+# Development stage
 FROM node:20-alpine AS development
 
-# Set working directory
+# Set the working directory
 WORKDIR /usr/src/app
 
 # Copy the build and runtime dependencies from the base image
@@ -32,7 +34,7 @@ COPY package.json ./
 EXPOSE 3000
 
 # Define environment variables
-ENV NODE_ENV=production
+ENV NODE_ENV=development
 ENV PORT=3000
 
 # Start the application
