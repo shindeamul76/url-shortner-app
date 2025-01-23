@@ -50,7 +50,7 @@ jobs:
           port: ${{ secrets.REMOTE_SERVER_PORT }}
           script: |
             echo "Pulling image: $IMAGE_NAME:$TAG"
-            docker pull $IMAGE_NAME:$TAG
+            docker pull shindeamul76/url-shortner-app:latest
             docker stop app || true
             docker rm app || true
             docker run -d --name app -p 3000:3000 \
