@@ -137,7 +137,7 @@ export class UserService {
       },
     });
 
-    console.log('Created User: ', createdUser);
+    // console.log('Created User: ', createdUser);
 
     return createdUser;
   }
