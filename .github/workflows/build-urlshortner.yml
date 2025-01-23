@@ -57,3 +57,5 @@ jobs:
             docker run -d --name app -p 3000:3000 \
               -env-file /home/user/app/.env \
               $IMAGE_NAME:$TAG
+
+  
