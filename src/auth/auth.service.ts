@@ -36,6 +36,7 @@ export class AuthService {
         sub: userId,
         aud: [this.configService.get('BASE_URL')],
       };
+
   
       const refreshToken = await this.jwtService.sign(refreshTokenPayload, {
         expiresIn: this.configService.get('REFRESH_TOKEN_VALIDITY'), //7 Days

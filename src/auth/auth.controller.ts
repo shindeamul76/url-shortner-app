@@ -77,7 +77,13 @@ export class AuthController {
   @UseInterceptors(UserLastLoginInterceptor)
   async googleAuthRedirect(@Request() req, @Res() res) {
 
-    const authTokens = await this.authService.generateAuthTokens(req.user.value.id);
+    const userId = req.user?.id || req.user?.value?.id;
+
+    // console.log(req.user.value, "req.user.value");
+    // console.log(req.user, "req.user");
+    // console.log(req, "req");
+
+    const authTokens = await this.authService.generateAuthTokens(userId);
 
     if (E.isLeft(authTokens)) throwHTTPErr(authTokens.left);
 
