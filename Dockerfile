@@ -14,6 +14,10 @@ RUN npm install -g yarn --force
 COPY package.json yarn.lock ./
 RUN yarn install --production=false
 
+
+# Copy the tsconfig.json file
+COPY tsconfig.json ./ 
+
 # Copy the entire project
 COPY . .
 
@@ -34,6 +38,7 @@ WORKDIR /usr/src/app
 COPY --from=base_builder /usr/src/app/dist ./dist
 COPY --from=base_builder /usr/src/app/node_modules ./node_modules
 COPY --from=base_builder /usr/src/app/prisma ./prisma
+COPY tsconfig.json ./ 
 COPY package.json ./
 
 # Expose the application port
@@ -57,6 +62,7 @@ WORKDIR /usr/src/app
 COPY --from=base_builder /usr/src/app/dist ./dist
 COPY --from=base_builder /usr/src/app/node_modules ./node_modules
 COPY --from=base_builder /usr/src/app/prisma ./prisma
+COPY tsconfig.json ./ 
 COPY package.json ./
 
 # Expose the application port
