@@ -8,6 +8,9 @@ import * as E from 'fp-ts/Either';
 import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
 import { errorHtml } from './helper';
 
+import { get } from 'http';
+
+
 
 @Controller('')
 export class UrlController {
@@ -48,31 +51,18 @@ export class UrlController {
         @Req() req: Request,
         @Res() res: Response,
     ) {
-        const userAgent = req.headers['user-agent'] || 'Unknown';
-        let ipAddress =
-            req.headers['x-forwarded-for']?.toString() || req.socket.remoteAddress || 'Unknown';
+        // Process and extract user and geo data
+        const { userAgent, ipAddress, osName, deviceType, geoData } = await this.urlService.processRequestData(req);
 
-        if (ipAddress == '::1') {
-            ipAddress = '127.0.0.1';
+
+        const urlResult = await this.urlService.getOriginalUrlAndLog(alias, userAgent, ipAddress, osName, deviceType, geoData);
+
+        if (E.isLeft(urlResult)) {
+            // Return custom HTML for errors
+            return res.status(urlResult.left.statusCode).send(errorHtml);
         }
 
-        const realIpAddress = ipAddress.split(',')[0];
-
-        console.log(realIpAddress, "ipAddress");
-        // Mock geolocation data (replace with actual geo API integration)
-        // Fetch geolocation data
-        const geoData = await this.urlService.getGeoData(realIpAddress);
-
-        console.log(geoData, "overall");
-
-        const result = await this.urlService.getOriginalUrlAndLog(alias, userAgent, ipAddress, geoData);
-
-        if (E.isLeft(result)) {
-            // Return custom HTML for errors        
-            return res.status(result.left.statusCode).send(errorHtml);
-        }
-
-        return res.redirect(result.right);
+        return res.redirect(urlResult.right);
     }
 
 }

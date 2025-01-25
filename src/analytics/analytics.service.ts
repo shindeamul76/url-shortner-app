@@ -89,11 +89,11 @@ export class AnalyticsService {
  * @param userId The authenticated user's ID
  * @returns Overall analytics for the user's URLs
  */
-async getOverallAnalytics() {
+async getOverallAnalytics(userId: number) {
     try {
       // Fetch all URLs created by the user
       const urls = await this.prisma.shortURL.findMany({
-        // where: { userID: userId },
+        where: { userID: userId },
         include: { redirectLogs: true },
       });
   

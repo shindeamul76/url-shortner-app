@@ -14,6 +14,7 @@ import { RTJwtAuthGuard } from './guards/rt-jwt-auth-guard';
 import { AuthUser } from 'src/types/AuthUser';
 import { StatusCodes } from 'http-status-codes';
 import { USER_NOT_FOUND } from 'src/errors';
+import { ApiExcludeEndpoint } from '@nestjs/swagger';
 
 
 
@@ -23,23 +24,23 @@ export class AuthController {
   constructor(
     private authService: AuthService,
     private configService: ConfigService,
-  ) {}
+  ) { }
 
 
   // @Get('providers')
   async getAuthProviders() {
     const providers = await this.authService.getAuthProviders();
-    return {providers};
+    return { providers };
   }
 
 
-    /**
-   * Success endpoint to indicate successful authentication.
-   */
-    @Get('success')
-    async authSuccess() {
-      return { message: 'OK', status: 'success' };
-    }
+  /**
+ * Success endpoint to indicate successful authentication.
+ */
+  @Get('success')
+  async authSuccess() {
+    return { message: 'OK', status: 'success' };
+  }
 
 
 
@@ -64,16 +65,16 @@ export class AuthController {
 
 
 
-    /**
-   ** Route to initiate SSO auth via Google
-   */
-   @Get('google')
-   @UseGuards(GoogleSSOGuard)
-   async googleAuth(@Request() req) {}
+  /**
+ ** Route to initiate SSO auth via Google
+ */
+  @Get('google')
+  @UseGuards(GoogleSSOGuard)
+  async googleAuth(@Request() req) { }
 
-  
 
   @Get('google/redirect')
+  @ApiExcludeEndpoint()
   @SkipThrottle()
   @UseGuards(GoogleSSOGuard)
   @UseInterceptors(UserLastLoginInterceptor)
@@ -81,7 +82,7 @@ export class AuthController {
 
     const userId = req.user?.id || req.user?.value?.id;
 
-    if(!userId) {
+    if (!userId) {
       throwHTTPErr({ message: USER_NOT_FOUND, statusCode: 400 });
     }
 
@@ -98,5 +99,16 @@ export class AuthController {
       redirectUrl,
     );
   }
+
+  /**
+** Log user out by clearing cookies containing auth tokens
+*/
+  @Get('logout')
+  async logout(@Res() res: Response) {
+    res.clearCookie('access_token');
+    res.clearCookie('refresh_token');
+    return res.status(200).send();
+  }
+
 
 }
