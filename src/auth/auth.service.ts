@@ -22,48 +22,48 @@ export class AuthService {
     private readonly jwtService: JwtService,
     private readonly prismaService: PrismaService,
     private readonly configService: ConfigService,
-  ) {}
+  ) { }
 
-    /**
-   * Generate new refresh token for user
-   *
-   * @param userId User Id
-   * @returns Generated refreshToken
-   */
-    private async generateRefreshToken(userId: number) {
-      const refreshTokenPayload: RefreshTokenPayload = {
-        iss: this.configService.get('BASE_URL'),
-        sub: userId,
-        aud: [this.configService.get('BASE_URL')],
-      };
+  /**
+ * Generate new refresh token for user
+ *
+ * @param userId User Id
+ * @returns Generated refreshToken
+ */
+  private async generateRefreshToken(userId: number) {
+    const refreshTokenPayload: RefreshTokenPayload = {
+      iss: this.configService.get('BASE_URL'),
+      sub: userId,
+      aud: [this.configService.get('BASE_URL')],
+    };
 
-  
-      const refreshToken = await this.jwtService.sign(refreshTokenPayload, {
-        expiresIn: this.configService.get('REFRESH_TOKEN_VALIDITY'), //7 Days
+
+    const refreshToken = await this.jwtService.sign(refreshTokenPayload, {
+      expiresIn: this.configService.get('REFRESH_TOKEN_VALIDITY'), //7 Days
+    });
+
+    const refreshTokenHash = await argon2.hash(refreshToken);
+
+    const updatedUser = await this.usersService.updateUserRefreshToken(
+      refreshTokenHash,
+      userId,
+    );
+    if (E.isLeft(updatedUser))
+      return E.left(<RESTError>{
+        message: updatedUser.left,
+        statusCode: StatusCodes.NOT_FOUND as number,
       });
-  
-      const refreshTokenHash = await argon2.hash(refreshToken);
-  
-      const updatedUser = await this.usersService.updateUserRefreshToken(
-        refreshTokenHash,
-        userId,
-      );
-      if (E.isLeft(updatedUser))
-        return E.left(<RESTError>{
-          message: updatedUser.left,
-          statusCode: StatusCodes.NOT_FOUND as number,
-        });
-  
-      return E.right(refreshToken);
-    }
+
+    return E.right(refreshToken);
+  }
 
 
-      /**
-   * Generate access and refresh token pair
-   *
-   * @param userUid User ID
-   * @returns Either of generated AuthTokens
-   */
+  /**
+* Generate access and refresh token pair
+*
+* @param userUid User ID
+* @returns Either of generated AuthTokens
+*/
   async generateAuthTokens(userId: number) {
     const accessTokenPayload: AccessTokenPayload = {
       iss: this.configService.get('BASE_URL'),
@@ -85,43 +85,43 @@ export class AuthService {
   }
 
 
-    /**
-   * Verify if Provider account exists for User
-   *
-   * @param user User Object
-   * @param SSOUserData User data from SSO providers (Google)
-   * @returns Either of existing user provider Account
-   */
-    async checkIfProviderAccountExists(user: AuthUser, SSOUserData) {
-      const provider = await this.prismaService.account.findUnique({
-        where: {
-          verifyProviderAccount: {
-            provider: SSOUserData.provider,
-            providerAccountId: SSOUserData.id,
-          },
+  /**
+ * Verify if Provider account exists for User
+ *
+ * @param user User Object
+ * @param SSOUserData User data from SSO providers (Google)
+ * @returns Either of existing user provider Account
+ */
+  async checkIfProviderAccountExists(user: AuthUser, SSOUserData) {
+    const provider = await this.prismaService.account.findUnique({
+      where: {
+        verifyProviderAccount: {
+          provider: SSOUserData.provider,
+          providerAccountId: SSOUserData.id,
         },
-      });
-  
-      if (!provider) return O.none;
-  
-      return O.some(provider);
-    }
+      },
+    });
+
+    if (!provider) return O.none;
+
+    return O.some(provider);
+  }
 
 
-    getAuthProviders() {
-      return this.configService
+  getAuthProviders() {
+    return this.configService
       .get<string>('ALLOWED_AUTH_PROVIDERS')
       .split(',');
-    }
+  }
 
 
-      /**
-   * Refresh refresh and auth tokens
-   *
-   * @param hashedRefreshToken Hashed refresh token received from client
-   * @param user User Object
-   * @returns Either of generated AuthTokens
-   */
+  /**
+* Refresh refresh and auth tokens
+*
+* @param hashedRefreshToken Hashed refresh token received from client
+* @param user User Object
+* @returns Either of generated AuthTokens
+*/
   async refreshAuthTokens(hashedRefreshToken: string, user: AuthUser) {
     // Check to see user is valid
     if (!user)
@@ -153,14 +153,5 @@ export class AuthService {
   }
 
 
-      /**
-   ** Log user out by clearing cookies containing auth tokens
-   */
-  @Get('logout')
-  async logout(@Res() res: Response) {
-    res.clearCookie('access_token');
-    res.clearCookie('refresh_token');
-    return res.status(200).send();
-  }
 
 }

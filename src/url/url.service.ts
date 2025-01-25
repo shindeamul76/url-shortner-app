@@ -9,6 +9,8 @@ import { v4 as uuidv4 } from 'uuid';
 import { ConfigService } from '@nestjs/config';
 import { CACHE_MANAGER } from '@nestjs/cache-manager';
 import { Cache } from 'cache-manager';
+import { GeoData } from 'src/types/Url-types';
+import { UAParser } from 'ua-parser-js';
 
 @Injectable()
 export class UrlService {
@@ -170,7 +172,9 @@ export class UrlService {
     alias: string,
     userAgent: string,
     ipAddress: string,
-    geoData: { country?: string; region?: string; city?: string }
+    osName: string | null, 
+    deviceType: string | null,
+    geoData: GeoData ,
   ) {
     let shortUrl: { id: string | number; longUrl: string  } | null = null;
   
@@ -179,7 +183,6 @@ export class UrlService {
       shortUrl = await this.cacheManager.get(alias);
     }
 
-    // console.log("After Chcking the cache manager: ", shortUrl);
   
     // Fallback to database lookup if not found in cache
     if (!shortUrl) {
@@ -194,9 +197,6 @@ export class UrlService {
       }
     }
 
-    // console.log("After Fallback to database lookup: ", shortUrl);
-    // console.log("After Fallback to database lookup: ", shortUrl?.longUrl);
-
   
     // Handle case where the short URL is not found
     if (!shortUrl) {
@@ -204,7 +204,7 @@ export class UrlService {
     }
   
     // Update analytics log
-    const logResult = await this.logRedirect(Number(shortUrl.id), userAgent, ipAddress, geoData);
+    const logResult = await this.logRedirect(Number(shortUrl.id), userAgent, ipAddress,  osName, deviceType, geoData);
     if (E.isLeft(logResult)) {
       console.warn('Failed to log analytics data:', logResult.left.message);
     }
@@ -223,8 +223,11 @@ export class UrlService {
     shortUrlId: number,
     userAgent: string,
     ipAddress: string,
-    geoData: { country?: string; region?: string; city?: string },
+    osName: string | null, 
+    deviceType: string | null,
+    geoData: GeoData,
   ) {
+
     return pipe(
       E.tryCatch(
         async () =>
@@ -232,6 +235,9 @@ export class UrlService {
             data: {
               shortUrlID: shortUrlId,
               userAgent: userAgent || 'Unknown',
+              geoLocation: geoData.geolocation,
+              osName: osName || 'Unknown',
+              deviceType: deviceType || 'Unknown',
               ipAddress: ipAddress || 'Unknown',
               country: geoData.country || 'Unknown',
               region: geoData.region || 'Unknown',
@@ -253,22 +259,30 @@ export class UrlService {
    */
   async getGeoData(ipAddress: string) {
     if (!this.isValidIp(ipAddress)) {
-      return { country: 'Unknown', region: 'Unknown', city: 'Unknown' };
+      return { country: 'Unknown', region: 'Unknown', city: 'Unknown', geolocation: null };
     }
 
     try {
-    //   const response = await axios.get(`https://ipinfo.io/${ipAddress}/json?token=4461685635a543`);
-      const response = await axios.get(`https://ipapi.co/${ipAddress}/json/`);
+      const response = await axios.get(`https://ipapi.co/103.88.236.42/json/`);
+
 
 
       return {
         country: response.data.country,
-        region: response.data.regionName,
+        region: response.data.region,
         city: response.data.city,
+        geolocation: JSON.stringify({
+           latitude: response.data.latitude, 
+           longitude: response.data.longitude, 
+           timezone: response.data.timezone, 
+           country: response.data.country_name, 
+           region: response.data.region, 
+           city: response.data.city 
+          }),
       };
     } catch (error) {
       console.error('Failed to fetch geolocation data:', error.message);
-      return { country: 'Unknown', region: 'Unknown', city: 'Unknown' };
+      return { country: 'Unknown', region: 'Unknown', city: 'Unknown', geolocation: null };
     }
   }
 
@@ -282,4 +296,34 @@ export class UrlService {
       /^(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$/;
     return ipRegex.test(ipAddress);
   }
+
+
+  async processRequestData(req) {
+    const userAgent = req.headers['user-agent'] || 'Unknown';
+    let ipAddress =
+        req.headers['x-forwarded-for']?.toString() || req.socket.remoteAddress || 'Unknown';
+
+    if (ipAddress === '::1') {
+        ipAddress = '127.0.0.1';
+    }
+
+    const realIpAddress = ipAddress.split(',')[0];
+
+    // Parse the user-agent string to extract OS and device type
+    const parser = new UAParser(userAgent);
+    const result = parser.getResult();
+
+    let osName = null;
+    let deviceType = null;
+
+    if (result) {
+        osName = result.os.name;
+        deviceType = result.device.type || 'desktop';
+    }
+
+    // Fetch geolocation data
+    const geoData = await this.getGeoData(realIpAddress);
+
+    return { userAgent, ipAddress: realIpAddress, osName, deviceType, geoData };
+}
 }
