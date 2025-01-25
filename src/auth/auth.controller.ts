@@ -26,7 +26,7 @@ export class AuthController {
   ) {}
 
 
-  @Get('providers')
+  // @Get('providers')
   async getAuthProviders() {
     const providers = await this.authService.getAuthProviders();
     return {providers};
@@ -47,7 +47,7 @@ export class AuthController {
    ** Route to refresh auth tokens with Refresh Token Rotation
    */
 
-  @Get('refresh')
+  // @Get('refresh')
   @UseGuards(RTJwtAuthGuard)
   async refresh(
     user: AuthUser,

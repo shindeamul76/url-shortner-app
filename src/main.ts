@@ -45,6 +45,7 @@ async function bootstrap() {
 
 
   app.use(cookieParser());
+  app.enableCors();
 
   await setupSwagger(app);
 
