@@ -8,6 +8,7 @@ import { AuthUser } from 'src/types/AuthUser';
 import { USER_NOT_FOUND, USER_UPDATE_FAILED } from 'src/errors';
 import { encrypt, stringToJson } from 'src/utils';
 import { OffsetPaginationArgs } from 'src/types/input-types.args';
+import { CreateUserSSODto } from './dto/create-user.dto';
 
 @Injectable()
 export class UserService {
@@ -87,6 +88,7 @@ export class UserService {
    * @returns Either of User with updated refreshToken
    */
     async updateUserRefreshToken(refreshTokenHash: string, userId: number) {
+
         try {
           const user = await this.prisma.user.update({
             where: {
@@ -112,33 +114,31 @@ export class UserService {
    * @param profile Data received from SSO provider on the users account
    * @returns Created User
    */
-  async createUserSSO(
-    accessTokenSSO: string,
-    refreshTokenSSO: string,
-    profile,
-  ) {
-    const userDisplayName = !profile.displayName ? null : profile.displayName;
-    const userPhotoURL = !profile.photos ? null : profile.photos[0].value;
+  async createUserSSO(dto: CreateUserSSODto): Promise<AuthUser> {
+    // Validate and sanitize the input DTO if necessary
+    if (!dto.email || !dto.provider || !dto.providerAccountId) {
+      throw new Error('Required fields are missing from the input DTO.');
+    }
 
+  
+    // Create the user with nested provider account creation
     const createdUser = await this.prisma.user.create({
       data: {
-        displayName: userDisplayName,
-        email: profile.emails[0].value,
-        photoURL: userPhotoURL,
+        displayName: dto.displayName || null,
+        email: dto.email,
+        photoURL: dto.photoURL || null,
         lastLoggedOn: new Date(),
         providerAccounts: {
           create: {
-            provider: profile.provider,
-            providerAccountId: profile.id,
-            providerRefreshToken: refreshTokenSSO,
-            providerAccessToken: accessTokenSSO,
+            provider: dto.provider,
+            providerAccountId: dto.providerAccountId,
+            providerRefreshToken: dto.refreshTokenSSO || null,
+            providerAccessToken: dto.accessTokenSSO || null,
           },
         },
       },
     });
-
-    // console.log('Created User: ', createdUser);
-
+  
     return createdUser;
   }
 

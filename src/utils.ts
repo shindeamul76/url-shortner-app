@@ -1,10 +1,18 @@
 import { HttpException } from "@nestjs/common";
 import { RESTError } from "./types/RESTError";
 import { ENV_NOT_FOUND_KEY_DATA_ENCRYPTION_KEY, JSON_INVALID } from "./errors";
+import { CacheModuleAsyncOptions } from "@nestjs/cache-manager";
+import { ConfigModule, ConfigService } from "@nestjs/config";
+import { redisStore } from "cache-manager-redis-store";
 
 import * as crypto from 'crypto';
 import * as O from 'fp-ts/Option';
 import * as E from 'fp-ts/Either';
+import { pass } from "fp-ts/lib/Writer";
+
+import KeyvRedis from '@keyv/redis';
+import { Keyv } from 'keyv';
+import { CacheableMemory } from 'cacheable';
 
 /**
  * A workaround to throw an exception in an expression.
@@ -99,3 +107,19 @@ export function stringToJson<T>(
       return E.left(JSON_INVALID);
     }
   }
+
+
+
+  export const RedisOptions: CacheModuleAsyncOptions = {
+    isGlobal: true,
+    imports: [ConfigModule],
+    useFactory: async () => {
+      return {
+        stores: [
+          new KeyvRedis('redis://:bIvakRq2zIn2HNU74XyPm3J8olOPLI3c@redis-17632.c326.us-east-1-3.ec2.redns.redis-cloud.com:17632'),
+        ],
+      };
+    },
+    inject: [ConfigService],
+  };
+

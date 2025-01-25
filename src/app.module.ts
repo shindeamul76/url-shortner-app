@@ -10,6 +10,9 @@ import appConfig from './config/app.config';
 import { ThrottlerModule } from '@nestjs/throttler';
 import { AnalyticsModule } from './analytics/analytics.module';
 import { JwtStrategy } from './auth/strategies/jwt.strategy';
+import { RedisModule } from '@nestjs-modules/ioredis';
+import { CacheModule } from '@nestjs/cache-manager';
+import { RedisOptions } from './utils';
 
 @Module({
   imports: [
@@ -27,6 +30,8 @@ import { JwtStrategy } from './auth/strategies/jwt.strategy';
         },
       ],
     }),
+
+    CacheModule.registerAsync(RedisOptions),
     AuthModule,
     PrismaModule,
     UserModule,

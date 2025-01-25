@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
 import * as E from 'fp-ts/Either';
 import { pipe } from 'fp-ts/lib/function';
@@ -7,12 +7,15 @@ import { StatusCodes } from 'http-status-codes';
 import axios from 'axios';
 import { v4 as uuidv4 } from 'uuid';
 import { ConfigService } from '@nestjs/config';
+import { CACHE_MANAGER } from '@nestjs/cache-manager';
+import { Cache } from 'cache-manager';
 
 @Injectable()
 export class UrlService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly configService: ConfigService,
+    @Inject(CACHE_MANAGER) private readonly cacheManager: Cache,
 ) {}
 
   /**
@@ -167,23 +170,45 @@ export class UrlService {
     alias: string,
     userAgent: string,
     ipAddress: string,
-    geoData: { country?: string; region?: string; city?: string },
+    geoData: { country?: string; region?: string; city?: string }
   ) {
-    // Fetch the short URL record
-    const shortUrl = await this.prisma.shortURL.findUnique({
-      where: { shortAlias: alias },
-    });
+    let shortUrl: { id: string | number; longUrl: string  } | null = null;
+  
+    // Check the cache manager for the short URL
+    if (this.cacheManager) {
+      shortUrl = await this.cacheManager.get(alias);
+    }
 
+    // console.log("After Chcking the cache manager: ", shortUrl);
+  
+    // Fallback to database lookup if not found in cache
+    if (!shortUrl) {
+      shortUrl = await this.prisma.shortURL.findUnique({
+        where: { shortAlias: alias },
+        select: { id: true, longUrl: true }, // Fetch only necessary fields
+      });
+  
+      // If the short URL is found, set it in the cache
+      if (shortUrl && this.cacheManager) {
+        await this.cacheManager.set(alias, shortUrl, 300 * 1000 );
+      }
+    }
+
+    // console.log("After Fallback to database lookup: ", shortUrl);
+    // console.log("After Fallback to database lookup: ", shortUrl?.longUrl);
+
+  
+    // Handle case where the short URL is not found
     if (!shortUrl) {
       return E.left(Errors.SHORT_URL_NOT_FOUND);
     }
-
+  
     // Update analytics log
-    const logResult = await this.logRedirect(shortUrl.id, userAgent, ipAddress, geoData);
+    const logResult = await this.logRedirect(Number(shortUrl.id), userAgent, ipAddress, geoData);
     if (E.isLeft(logResult)) {
       console.warn('Failed to log analytics data:', logResult.left.message);
     }
-
+  
     return E.right(shortUrl.longUrl);
   }
 

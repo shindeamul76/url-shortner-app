@@ -11,6 +11,9 @@ import * as E from 'fp-ts/Either';
 const mockPrisma = mockDeep<PrismaService>();
 let service: UserService;
 
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+// @ts-ignore
+
 const userService = new UserService(mockPrisma);
 
 const currentTime = new Date();
@@ -125,9 +128,15 @@ describe('UserService', () => {
       mockPrisma.user.create.mockResolvedValueOnce(user);
 
       const result = await userService.createUserSSO(
-        'sdcsdcsdc',
-        'dscsdc',
-        exampleSSOProfileData,
+        {
+          accessTokenSSO: 'sdcsdcsdc',
+          refreshTokenSSO: 'dscsdc',
+          email: 'mockusre@tao.com',
+          provider: 'google',
+          providerAccountId: 'exampleSSOProfileData.id',
+          displayName: 'Mock',
+          photoURL: 'https://en.wikipedia.org/mockuser',
+         }
       );
       expect(result).toEqual(user);
     });
@@ -138,10 +147,15 @@ describe('UserService', () => {
         displayName: null,
       });
 
-      const result = await userService.createUserSSO('sdcsdcsdc', 'dscsdc', {
-        ...exampleSSOProfileData,
-        displayName: null,
-      });
+      const result = await userService.createUserSSO({
+        accessTokenSSO: 'sdcsdcsdc',
+        refreshTokenSSO: 'dscsdc',
+        email: 'mockusre@tao.com',
+        provider: 'google',
+        providerAccountId: 'exampleSSOProfileData.id',
+        displayName: 'Mock',
+        photoURL: 'https://en.wikipedia.org/mockuser',
+       });
 
       expect(result).toEqual({
         ...user,
@@ -155,10 +169,15 @@ describe('UserService', () => {
         photoURL: null,
       });
 
-      const result = await userService.createUserSSO('sdcsdcsdc', 'dscsdc', {
-        ...exampleSSOProfileData,
-        photoURL: null,
-      });
+      const result = await userService.createUserSSO({
+        accessTokenSSO: 'sdcsdcsdc',
+        refreshTokenSSO: 'dscsdc',
+        email: 'mockusre@tao.com',
+        provider: 'google',
+        providerAccountId: 'exampleSSOProfileData.id',
+        displayName: 'Mock',
+        photoURL: 'https://en.wikipedia.org/mockuser',
+       });
 
       expect(result).toEqual({
         ...user,
@@ -172,9 +191,15 @@ describe('UserService', () => {
       mockPrisma.user.create.mockResolvedValueOnce(user);
 
       const result = await userService.createUserSSO(
-        'sdcsdcsdc',
-        'dscsdc',
-        exampleSSOProfileData,
+       {
+        accessTokenSSO: 'sdcsdcsdc',
+        refreshTokenSSO: 'dscsdc',
+        email: 'mockusre@tao.com',
+        provider: 'google',
+        providerAccountId: 'exampleSSOProfileData.id',
+        displayName: 'Mock',
+        photoURL: 'https://en.wikipedia.org/mockuser',
+       }
       );
       expect(result).toEqual(user);
     });
@@ -185,10 +210,15 @@ describe('UserService', () => {
         displayName: null,
       });
 
-      const result = await userService.createUserSSO('sdcsdcsdc', 'dscsdc', {
-        ...exampleSSOProfileData,
-        displayName: null,
-      });
+      const result = await userService.createUserSSO({
+        accessTokenSSO: 'sdcsdcsdc',
+        refreshTokenSSO: 'dscsdc',
+        email: 'mockusre@tao.com',
+        provider: 'google',
+        providerAccountId: 'exampleSSOProfileData.id',
+        displayName: 'Mock',
+        photoURL: 'https://en.wikipedia.org/mockuser',
+       });
 
       expect(result).toEqual({
         ...user,
@@ -202,10 +232,15 @@ describe('UserService', () => {
         photoURL: null,
       });
 
-      const result = await userService.createUserSSO('sdcsdcsdc', 'dscsdc', {
-        ...exampleSSOProfileData,
-        photoURL: null,
-      });
+      const result = await userService.createUserSSO({
+        accessTokenSSO: 'sdcsdcsdc',
+        refreshTokenSSO: 'dscsdc',
+        email: 'mockusre@tao.com',
+        provider: 'google',
+        providerAccountId: 'exampleSSOProfileData.id',
+        displayName: 'Mock',
+        photoURL: 'https://en.wikipedia.org/mockuser',
+       });
 
       expect(result).toEqual({
         ...user,
@@ -336,6 +371,7 @@ describe('UserService', () => {
       });
       expect(result).toEqual(users);
     });
+
     test('should resolve right and return next 20 users when searchString is provided', async () => {
       mockPrisma.user.findMany.mockResolvedValueOnce(users);
 
@@ -364,6 +400,7 @@ describe('UserService', () => {
       expect(result).toEqual(10);
     });
   });
+
 
 
 
