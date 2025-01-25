@@ -56,11 +56,12 @@ export class UrlController {
             ipAddress = '127.0.0.1';
         }
 
+        const realIpAddress = ipAddress.split(',')[0];
 
-        console.log(ipAddress, "ipAddress");
+        console.log(realIpAddress, "ipAddress");
         // Mock geolocation data (replace with actual geo API integration)
         // Fetch geolocation data
-        const geoData = await this.urlService.getGeoData(ipAddress);
+        const geoData = await this.urlService.getGeoData(realIpAddress);
 
         console.log(geoData, "overall");
 

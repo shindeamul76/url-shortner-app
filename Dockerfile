@@ -4,7 +4,7 @@ FROM node:20-alpine AS base_builder
 # Set working directory
 WORKDIR /usr/src/app
 
-# Install necessary dependencies for Prisma (e.g., sqlite for local development, or client generation)
+# Install necessary dependencies for Prisma 
 RUN apk add --no-cache python3 make g++ openssl
 
 # Install Yarn globally
@@ -41,6 +41,12 @@ COPY --from=base_builder /usr/src/app/prisma ./prisma
 COPY tsconfig.json ./ 
 COPY package.json ./
 
+# Generate Prisma client
+RUN yarn prisma generate
+
+# Build the application
+RUN yarn build
+
 # Expose the application port
 EXPOSE 3000
 
@@ -64,6 +70,13 @@ COPY --from=base_builder /usr/src/app/node_modules ./node_modules
 COPY --from=base_builder /usr/src/app/prisma ./prisma
 COPY tsconfig.json ./ 
 COPY package.json ./
+
+
+# Generate Prisma client
+RUN yarn prisma generate
+
+# Build the application
+RUN yarn build
 
 # Expose the application port
 EXPOSE 3000

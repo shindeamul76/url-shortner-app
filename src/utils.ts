@@ -113,10 +113,10 @@ export function stringToJson<T>(
   export const RedisOptions: CacheModuleAsyncOptions = {
     isGlobal: true,
     imports: [ConfigModule],
-    useFactory: async () => {
+    useFactory: async (configService: ConfigService) => {
       return {
         stores: [
-          new KeyvRedis('redis://:bIvakRq2zIn2HNU74XyPm3J8olOPLI3c@redis-17632.c326.us-east-1-3.ec2.redns.redis-cloud.com:17632'),
+          new KeyvRedis(configService.get('REDIS_URL')),
         ],
       };
     },
