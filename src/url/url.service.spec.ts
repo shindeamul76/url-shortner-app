@@ -1,148 +1,105 @@
-// import { Test, TestingModule } from '@nestjs/testing';
-// import { UrlService } from './url.service';
-// import { UrlController } from './url.controller';
-// import { PrismaService } from 'src/prisma/prisma.service';
-// import { ConfigService } from '@nestjs/config';
-// import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
-// import * as E from 'fp-ts/Either';
-// import { mockDeep, mockReset } from 'jest-mock-extended';
-// import { Response } from 'express';
+import { Test, TestingModule } from '@nestjs/testing';
+import { UrlService } from './url.service';
+import { PrismaService } from '../prisma/prisma.service';
 
-// const mockPrisma = mockDeep<PrismaService>();
-// const mockConfigService = mockDeep<ConfigService>();
-// const mockResponse = {
-//   redirect: jest.fn(),
-//   status: jest.fn().mockReturnThis(),
-//   send: jest.fn(),
-// } as unknown as Response;
+import { ConfigService } from '@nestjs/config';
+import * as E from 'fp-ts/Either';
+import { mockDeep, mockReset } from 'jest-mock-extended';
 
-// let service: UrlService;
-// let controller: UrlController;
+import { CreateShortUrlDto } from './dto/create-short-url.dto';
+import { AuthUser } from 'src/types/AuthUser';
 
-// beforeEach(async () => {
-//   mockReset(mockPrisma);
-//   mockReset(mockConfigService);
 
-//   const module: TestingModule = await Test.createTestingModule({
-//     controllers: [UrlController],
-//     providers: [UrlService, { provide: PrismaService, useValue: mockPrisma }, { provide: ConfigService, useValue: mockConfigService }],
-//   }).compile();
+const mockPrisma = mockDeep<PrismaService>();
+const mockConfigService = mockDeep<ConfigService>();
 
-//   service = module.get<UrlService>(UrlService);
-//   controller = module.get<UrlController>(UrlController);
-// });
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+// @ts-ignore
 
-// describe('UrlService', () => {
-//   describe('createShortUrl', () => {
-//     test('should create a short URL successfully', async () => {
-//       mockPrisma.shortURL.create.mockResolvedValueOnce({
-//         longUrl: 'http://example.com',
-//         shortAlias: 'abc123',
-//         topic: 'acquisition',  
-//         userID: 1, 
-//         createdAt: new Date(), 
-//       });
+let service: UrlService;
 
-//       mockConfigService.get.mockReturnValueOnce('http://short.url/');
+const currentTime = new Date();
 
-//       const result = await service.createShortUrl({
-//         longUrl: 'http://example.com',
-//         shortAlias: 'abc123',
-//         topic: 'acquisition',
-//       }, 1);
+beforeEach(() => {
+    mockReset(mockPrisma);
+    service = new UrlService(mockPrisma, mockConfigService);
+});
 
-//       expect(result).toEqual(E.right({
-//         shortUrl: 'http://short.url/abc123',
-//         createdAt: expect.any(Date),
-//       }));
-//     });
+const createShortUrlDto: CreateShortUrlDto = {
+    longUrl: 'http://example.com',
+    shortAlias: 'abc123',
+    topic: 'test',
+};
 
-//     test('should return INVALID_URL error for invalid URL', async () => {
-//       const result = await service.createShortUrl({
-//         longUrl: 'invalid-url',
-//         shortAlias: null,
-//         topic: 'test',
-//       }, 1);
 
-//       expect(result).toEqual(E.left('INVALID_URL'));
-//     });
-//   });
 
-//   describe('getOriginalUrlAndLog', () => {
-//     test('should return original URL and log analytics', async () => {
-//       mockPrisma.shortURL.findUnique.mockResolvedValueOnce({
-//         id: 1,
-//         longUrl: 'http://example.com',
-//       });
-//       mockPrisma.redirectLog.create.mockResolvedValueOnce({});
+const user: AuthUser = {
+    id: 1,
+    email: 'mockusre@tao.com',
+    displayName: 'Mock User',
+    photoURL: 'https://en.wikipedia.org/mockuser',
+    refreshToken: 'hbfvdkhjbvkdvdfjvbnkhjb',
+    lastLoggedOn: currentTime,
+    createdAt: currentTime,
+    currentRESTSession: {},
+};
 
-//       const result = await service.getOriginalUrlAndLog(
-//         'abc123',
-//         'Mozilla/5.0',
-//         '127.0.0.1',
-//         { country: 'USA', region: 'CA', city: 'San Francisco' },
-//       );
 
-//       expect(result).toEqual(E.right('http://example.com'));
-//     });
 
-//     test('should return SHORT_URL_NOT_FOUND error for invalid alias', async () => {
-//       mockPrisma.shortURL.findUnique.mockResolvedValueOnce(null);
+describe('UrlService', () => {
+    describe('createShortUrl', () => {
+        test('should create a short URL successfully', async () => {
 
-//       const result = await service.getOriginalUrlAndLog(
-//         'invalid-alias',
-//         'Mozilla/5.0',
-//         '127.0.0.1',
-//         { country: 'Unknown', region: 'Unknown', city: 'Unknown' },
-//       );
+            const result = await service.createShortUrl(createShortUrlDto, user.id)
+            mockConfigService.get.mockReturnValueOnce('http://short.url/');
 
-//       expect(result).toEqual(E.left('SHORT_URL_NOT_FOUND'));
-//     });
-//   });
-// });
 
-// describe('UrlController', () => {
-//   describe('createShortUrl', () => {
-//     test('should create a short URL successfully', async () => {
-//       const mockReq = { user: { id: 1 } };
+            expect(result).toEqual(E.right({
+                shortUrl: 'http://short.url/abc123',
+                createdAt: expect.any(Date),
+            }));
+        });
 
-//       jest.spyOn(service, 'createShortUrl').mockResolvedValueOnce(E.right({
-//         shortUrl: 'http://short.url/abc123',
-//         createdAt: new Date(),
-//       }));
+        test('should return INVALID_URL error for invalid URL', async () => {
+            const result = await service.createShortUrl({
+                longUrl: 'invalid-url',
+                shortAlias: null,
+                topic: 'test',
+            }, 1);
 
-//       const result = await controller.createShortUrl({
-//         longUrl: 'http://example.com',
-//         shortAlias: 'abc123',
-//         topic: 'test',
-//       }, mockReq);
+            expect(result).toEqual(E.left('INVALID_URL'));
+        });
+    });
+    //     test('should return original URL and log analytics', async () => {
+    //           mockPrisma.shortURL.findUnique.mockResolvedValueOnce({
+    //             id: 1,
+    //             longUrl: 'http://example.com',
+    //           });
+    //         mockPrisma.redirectLog.create.mockResolvedValueOnce({});
 
-//       expect(result).toEqual(E.right({
-//         shortUrl: 'http://short.url/abc123',
-//         createdAt: expect.any(Date),
-//       }));
-//     });
-//   });
+    //         const result = await service.getOriginalUrlAndLog(
+    //             'abc123',
+    //             'Mozilla/5.0',
+    //             '127.0.0.1',
+    //             { country: 'USA', region: 'CA', city: 'San Francisco' },
+    //         );
 
-//   describe('redirectToOriginalUrl', () => {
-//     test('should redirect to original URL', async () => {
-//       jest.spyOn(service, 'getOriginalUrlAndLog').mockResolvedValueOnce(E.right('http://example.com'));
+    //         expect(result).toEqual(E.right('http://example.com'));
+    //     });
 
-//       await controller.redirectToOriginalUrl('abc123', { headers: { 'user-agent': 'Mozilla/5.0', 'x-forwarded-for': '127.0.0.1' } }, mockResponse);
+    //     test('should return SHORT_URL_NOT_FOUND error for invalid alias', async () => {
+    //         mockPrisma.shortURL.findUnique.mockResolvedValueOnce(null);
 
-//       expect(mockResponse.redirect).toHaveBeenCalledWith('http://example.com');
-//     });
+    //         const result = await service.getOriginalUrlAndLog(
+    //             'invalid-alias',
+    //             'Mozilla/5.0',
+    //             '127.0.0.1',
+    //             { country: 'Unknown', region: 'Unknown', city: 'Unknown' },
+    //         );
 
-//     test('should return custom error HTML for invalid alias', async () => {
-//       jest.spyOn(service, 'getOriginalUrlAndLog').mockResolvedValueOnce(E.left({
-//         message: 'SHORT_URL_NOT_FOUND',
-//         statusCode: 404,
-//       }));
+    //         expect(result).toEqual(E.left('SHORT_URL_NOT_FOUND'));
+    //     });
+    // });
+});
 
-//       await controller.redirectToOriginalUrl('invalid-alias', { headers: { 'user-agent': 'Mozilla/5.0', 'x-forwarded-for': '127.0.0.1' } }, mockResponse);
 
-//       expect(mockResponse.status).toHaveBeenCalledWith(404);
-//       expect(mockResponse.send).toHaveBeenCalledWith(expect.any(String));
-//     });
-//   });
-// });

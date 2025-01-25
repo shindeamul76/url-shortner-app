@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Param, Post, Req, Res, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, Param, Post, Req, Res, UseGuards, UseInterceptors } from '@nestjs/common';
 import { UrlService } from './url.service';
 import { ConfigService } from '@nestjs/config';
 import { CreateShortUrlDto } from './dto/create-short-url.dto';
@@ -7,8 +7,10 @@ import { throwHTTPErr } from 'src/utils';
 import * as E from 'fp-ts/Either';
 import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
 import { errorHtml } from './helper';
+import { CacheInterceptor } from '@nestjs/cache-manager';
 
 @Controller('')
+@UseInterceptors(CacheInterceptor)
 export class UrlController {
 
     constructor(

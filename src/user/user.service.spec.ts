@@ -11,6 +11,9 @@ import * as E from 'fp-ts/Either';
 const mockPrisma = mockDeep<PrismaService>();
 let service: UserService;
 
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+// @ts-ignore
+
 const userService = new UserService(mockPrisma);
 
 const currentTime = new Date();
@@ -336,6 +339,7 @@ describe('UserService', () => {
       });
       expect(result).toEqual(users);
     });
+
     test('should resolve right and return next 20 users when searchString is provided', async () => {
       mockPrisma.user.findMany.mockResolvedValueOnce(users);
 
@@ -364,6 +368,7 @@ describe('UserService', () => {
       expect(result).toEqual(10);
     });
   });
+
 
 
 

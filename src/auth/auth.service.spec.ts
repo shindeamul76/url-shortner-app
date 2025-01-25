@@ -17,6 +17,10 @@ const mockJWT = mockDeep<JwtService>();
 const mockConfigService = mockDeep<ConfigService>();
 
 
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+// @ts-ignore
+
+
 const authService = new AuthService(
   mockUser,
   mockJWT,

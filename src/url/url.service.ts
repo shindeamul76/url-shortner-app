@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
 import * as E from 'fp-ts/Either';
 import { pipe } from 'fp-ts/lib/function';
@@ -7,12 +7,14 @@ import { StatusCodes } from 'http-status-codes';
 import axios from 'axios';
 import { v4 as uuidv4 } from 'uuid';
 import { ConfigService } from '@nestjs/config';
+import { CACHE_MANAGER } from '@nestjs/cache-manager';
 
 @Injectable()
 export class UrlService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly configService: ConfigService,
+    @Inject(CACHE_MANAGER) private readonly cacheManager: Cache,
 ) {}
 
   /**
@@ -169,6 +171,12 @@ export class UrlService {
     ipAddress: string,
     geoData: { country?: string; region?: string; city?: string },
   ) {
+
+    const cachedUrl = await this.cacheManager.match(alias);
+
+    // if (cachedUrl) {
+    //   return E.right(cachedUrl);
+    // }
     // Fetch the short URL record
     const shortUrl = await this.prisma.shortURL.findUnique({
       where: { shortAlias: alias },
@@ -183,6 +191,8 @@ export class UrlService {
     if (E.isLeft(logResult)) {
       console.warn('Failed to log analytics data:', logResult.left.message);
     }
+
+    // await this.cacheManager.put(alias, shortUrl.longUrl, { ttl: 300 });
 
     return E.right(shortUrl.longUrl);
   }
