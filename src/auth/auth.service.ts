@@ -71,10 +71,8 @@ export class AuthService {
       aud: [this.configService.get('BASE_URL')],
     };
 
-    // console.log(accessTokenPayload, "accessTokenPayload")
 
     const refreshToken = await this.generateRefreshToken(userId);
-    // console.log(refreshToken, "refreshToken");
 
     if (E.isLeft(refreshToken)) return E.left(refreshToken.left);
 

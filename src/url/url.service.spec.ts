@@ -22,7 +22,7 @@ const currentTime = new Date();
 
 beforeEach(() => {
     mockReset(mockPrisma);
-    service = new UrlService(mockPrisma, mockConfigService);
+    // service = new UrlService(mockPrisma);
 });
 
 const createShortUrlDto: CreateShortUrlDto = {

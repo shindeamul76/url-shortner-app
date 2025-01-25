@@ -7,10 +7,9 @@ import { throwHTTPErr } from 'src/utils';
 import * as E from 'fp-ts/Either';
 import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
 import { errorHtml } from './helper';
-import { CacheInterceptor } from '@nestjs/cache-manager';
+
 
 @Controller('')
-@UseInterceptors(CacheInterceptor)
 export class UrlController {
 
     constructor(

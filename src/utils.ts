@@ -10,6 +10,10 @@ import * as O from 'fp-ts/Option';
 import * as E from 'fp-ts/Either';
 import { pass } from "fp-ts/lib/Writer";
 
+import KeyvRedis from '@keyv/redis';
+import { Keyv } from 'keyv';
+import { CacheableMemory } from 'cacheable';
+
 /**
  * A workaround to throw an exception in an expression.
  * JS throw keyword creates a statement not an expression.
@@ -109,17 +113,13 @@ export function stringToJson<T>(
   export const RedisOptions: CacheModuleAsyncOptions = {
     isGlobal: true,
     imports: [ConfigModule],
-    useFactory: async (configService: ConfigService) => {
-      const store = await redisStore({
-        socket: {
-          host: configService.get<string>('REDIS_HOST'),
-          port: parseInt(configService.get<string>('REDIS_PORT')!),
-          password: configService.get<string>('REDIS_PASSWORD'),
-        },
-      });
+    useFactory: async () => {
       return {
-        store: () => store,
+        stores: [
+          new KeyvRedis('redis://:bIvakRq2zIn2HNU74XyPm3J8olOPLI3c@redis-17632.c326.us-east-1-3.ec2.redns.redis-cloud.com:17632'),
+        ],
       };
     },
     inject: [ConfigService],
   };
+

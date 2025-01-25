@@ -128,9 +128,15 @@ describe('UserService', () => {
       mockPrisma.user.create.mockResolvedValueOnce(user);
 
       const result = await userService.createUserSSO(
-        'sdcsdcsdc',
-        'dscsdc',
-        exampleSSOProfileData,
+        {
+          accessTokenSSO: 'sdcsdcsdc',
+          refreshTokenSSO: 'dscsdc',
+          email: 'mockusre@tao.com',
+          provider: 'google',
+          providerAccountId: 'exampleSSOProfileData.id',
+          displayName: 'Mock',
+          photoURL: 'https://en.wikipedia.org/mockuser',
+         }
       );
       expect(result).toEqual(user);
     });
@@ -141,10 +147,15 @@ describe('UserService', () => {
         displayName: null,
       });
 
-      const result = await userService.createUserSSO('sdcsdcsdc', 'dscsdc', {
-        ...exampleSSOProfileData,
-        displayName: null,
-      });
+      const result = await userService.createUserSSO({
+        accessTokenSSO: 'sdcsdcsdc',
+        refreshTokenSSO: 'dscsdc',
+        email: 'mockusre@tao.com',
+        provider: 'google',
+        providerAccountId: 'exampleSSOProfileData.id',
+        displayName: 'Mock',
+        photoURL: 'https://en.wikipedia.org/mockuser',
+       });
 
       expect(result).toEqual({
         ...user,
@@ -158,10 +169,15 @@ describe('UserService', () => {
         photoURL: null,
       });
 
-      const result = await userService.createUserSSO('sdcsdcsdc', 'dscsdc', {
-        ...exampleSSOProfileData,
-        photoURL: null,
-      });
+      const result = await userService.createUserSSO({
+        accessTokenSSO: 'sdcsdcsdc',
+        refreshTokenSSO: 'dscsdc',
+        email: 'mockusre@tao.com',
+        provider: 'google',
+        providerAccountId: 'exampleSSOProfileData.id',
+        displayName: 'Mock',
+        photoURL: 'https://en.wikipedia.org/mockuser',
+       });
 
       expect(result).toEqual({
         ...user,
@@ -175,9 +191,15 @@ describe('UserService', () => {
       mockPrisma.user.create.mockResolvedValueOnce(user);
 
       const result = await userService.createUserSSO(
-        'sdcsdcsdc',
-        'dscsdc',
-        exampleSSOProfileData,
+       {
+        accessTokenSSO: 'sdcsdcsdc',
+        refreshTokenSSO: 'dscsdc',
+        email: 'mockusre@tao.com',
+        provider: 'google',
+        providerAccountId: 'exampleSSOProfileData.id',
+        displayName: 'Mock',
+        photoURL: 'https://en.wikipedia.org/mockuser',
+       }
       );
       expect(result).toEqual(user);
     });
@@ -188,10 +210,15 @@ describe('UserService', () => {
         displayName: null,
       });
 
-      const result = await userService.createUserSSO('sdcsdcsdc', 'dscsdc', {
-        ...exampleSSOProfileData,
-        displayName: null,
-      });
+      const result = await userService.createUserSSO({
+        accessTokenSSO: 'sdcsdcsdc',
+        refreshTokenSSO: 'dscsdc',
+        email: 'mockusre@tao.com',
+        provider: 'google',
+        providerAccountId: 'exampleSSOProfileData.id',
+        displayName: 'Mock',
+        photoURL: 'https://en.wikipedia.org/mockuser',
+       });
 
       expect(result).toEqual({
         ...user,
@@ -205,10 +232,15 @@ describe('UserService', () => {
         photoURL: null,
       });
 
-      const result = await userService.createUserSSO('sdcsdcsdc', 'dscsdc', {
-        ...exampleSSOProfileData,
-        photoURL: null,
-      });
+      const result = await userService.createUserSSO({
+        accessTokenSSO: 'sdcsdcsdc',
+        refreshTokenSSO: 'dscsdc',
+        email: 'mockusre@tao.com',
+        provider: 'google',
+        providerAccountId: 'exampleSSOProfileData.id',
+        displayName: 'Mock',
+        photoURL: 'https://en.wikipedia.org/mockuser',
+       });
 
       expect(result).toEqual({
         ...user,

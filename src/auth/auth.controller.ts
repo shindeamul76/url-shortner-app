@@ -12,6 +12,8 @@ import { SkipThrottle } from '@nestjs/throttler';
 import { ThrottlerBehindProxyGuard } from 'src/guards/throttler-behind-proxy.guard';
 import { RTJwtAuthGuard } from './guards/rt-jwt-auth-guard';
 import { AuthUser } from 'src/types/AuthUser';
+import { StatusCodes } from 'http-status-codes';
+import { USER_NOT_FOUND } from 'src/errors';
 
 
 
@@ -79,9 +81,9 @@ export class AuthController {
 
     const userId = req.user?.id || req.user?.value?.id;
 
-    // console.log(req.user.value, "req.user.value");
-    // console.log(req.user, "req.user");
-    // console.log(req, "req");
+    if(!userId) {
+      throwHTTPErr({ message: USER_NOT_FOUND, statusCode: 400 });
+    }
 
     const authTokens = await this.authService.generateAuthTokens(userId);
 

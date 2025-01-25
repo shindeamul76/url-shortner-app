@@ -31,7 +31,6 @@ export class GoogleStrategy extends PassportStrategy(Strategy) {
     profile: any,
     done: VerifyCallback,
   ) {
-    // console.log('Full Profile:', JSON.stringify(profile, null, 2));
   
     const emails = profile?.emails;
     if (!emails || !Array.isArray(emails) || emails.length === 0) {
@@ -40,7 +39,6 @@ export class GoogleStrategy extends PassportStrategy(Strategy) {
   
     const email = emails[0]?.value;
 
-    // console.log('Email: ', email);
 
     if (!email) {
       return done(new Error('Email is undefined in Google profile'), null);
@@ -50,9 +48,15 @@ export class GoogleStrategy extends PassportStrategy(Strategy) {
   
     if (O.isNone(user)) {
       const createdUser = await this.usersService.createUserSSO(
-        accessToken,
-        refreshToken,
-        profile,
+       {
+        accessTokenSSO: accessToken,
+        refreshTokenSSO: refreshToken,
+        email: email,
+        provider: profile.provider,
+        providerAccountId: profile.id,
+        displayName: profile.displayName,
+        photoURL: profile.photos[0].value,
+      }
       );
       return done(null, createdUser);
     }
