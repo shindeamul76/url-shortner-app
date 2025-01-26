@@ -5,14 +5,12 @@ import { ConfigService } from '@nestjs/config';
 import { GoogleSSOGuard } from './guards/google-sso.guard';
 import { throwHTTPErr } from 'src/utils';
 import { authCookieHandler } from './helper';
-import * as O from 'fp-ts/Option';
 import * as E from 'fp-ts/Either';
 import { UserLastLoginInterceptor } from 'src/interceptors/user-last-login.interceptor';
 import { SkipThrottle } from '@nestjs/throttler';
 import { ThrottlerBehindProxyGuard } from 'src/guards/throttler-behind-proxy.guard';
 import { RTJwtAuthGuard } from './guards/rt-jwt-auth-guard';
 import { AuthUser } from 'src/types/AuthUser';
-import { StatusCodes } from 'http-status-codes';
 import { USER_NOT_FOUND } from 'src/errors';
 import { ApiExcludeEndpoint } from '@nestjs/swagger';
 

@@ -5,7 +5,6 @@ import { ConfigService } from '@nestjs/config';
 import * as O from 'fp-ts/Option';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { UserService } from 'src/user/user.service';
-import { cons } from 'fp-ts/lib/ReadonlyNonEmptyArray';
 
 @Injectable()
 export class GoogleStrategy extends PassportStrategy(Strategy) {
