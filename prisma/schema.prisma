@@ -20,9 +20,6 @@ model User {
   urls             ShortURL[]
   providerAccounts Account[]
   rateLimit        RateLimit?
-
-  // One user can have multiple ShortURLs (1-to-many).
-  // RateLimit is optional if the user has not yet generated any URLs or is not actively limited.
 }
 
 model Account {
@@ -53,9 +50,6 @@ model ShortURL {
   userID       Int
   user         User          @relation(fields: [userID], references: [id])
   redirectLogs RedirectLog[]
-
-  // shortAlias is unique for quick lookups.
-  // topic is optional; consider using an enum if the number of topics (e.g., acquisition, activation, retention) is fixed.
 }
 
 enum Topic {
@@ -78,9 +72,6 @@ model RedirectLog {
 
   shortUrlID Int
   shortUrl   ShortURL @relation(fields: [shortUrlID], references: [id])
-
-  // Storing userAgent and ipAddress as String is fine. 
-  // If userAgent is very long, you could store it as a "Text" type in PostgreSQL (Prisma still uses String, but it's mapped as text).
 }
 
 model RateLimit {
@@ -92,7 +83,4 @@ model RateLimit {
 
   userID Int  @unique
   user   User @relation(fields: [userID], references: [id])
-
-  // userID is unique here so each user has exactly one RateLimit record at a time.
-  // If you need historical data, consider removing @unique and storing multiple records per user.
 }
