@@ -1,0 +1,55 @@
+version: '3.9'
+
+services:
+  app:
+    build:
+      context: .
+      target: development 
+    ports:
+      - "${PORT}:${PORT}"
+    environment:
+      DATABASE_URL: ${DATABASE_URL}
+      GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID}
+      GOOGLE_CLIENT_SECRET: ${GOOGLE_CLIENT_SECRET}
+      GOOGLE_CALLBACK_URL: ${GOOGLE_CALLBACK_URL}
+      JWT_SECRET: ${JWT_SECRET}
+      PORT: ${PORT}
+      ALLOWED_AUTH_PROVIDERS: ${ALLOWED_AUTH_PROVIDERS}
+      REDIS_URL: ${REDIS_URL}
+      TOKEN_SALT_COMPLEXITY: ${TOKEN_SALT_COMPLEXITY}
+      REFRESH_TOKEN_VALIDITY: ${REFRESH_TOKEN_VALIDITY}
+      ACCESS_TOKEN_VALIDITY: ${ACCESS_TOKEN_VALIDITY}
+      SESSION_SECRET: ${SESSION_SECRET}
+      ALLOW_SECURE_COOKIES: ${ALLOW_SECURE_COOKIES}
+      BASE_URL: ${BASE_URL}
+      REDIRECT_URL: ${REDIRECT_URL}
+      WHITELISTED_ORIGINS: ${WHITELISTED_ORIGINS}
+      RATE_LIMIT_TTL: ${RATE_LIMIT_TTL}
+      RATE_LIMIT_MAX: ${RATE_LIMIT_MAX}
+      SHORT_BASE_URL: ${SHORT_BASE_URL}
+      NODE_ENV: ${NODE_ENV}
+    depends_on:
+      - db
+      - redis
+    command: sh ./wait-for-it.sh db yarn start:dev
+
+  db:
+    image: postgres:14
+    container_name: database-container
+    restart: always
+    environment:
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: urlShortenerDB
+    ports:
+      - '5432:5432'
+    volumes:
+      - db_data:/var/lib/postgresql/data
+
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+
+volumes:
+  db_data:

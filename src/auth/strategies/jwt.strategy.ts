@@ -37,6 +37,7 @@ export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
     }
 
     const user = await this.usersService.findUserById(payload.sub);
+    
     if (O.isNone(user)) {
       throw new UnauthorizedException(USER_NOT_FOUND);
     }
