@@ -23,6 +23,31 @@
 </p>
 
 
+<!-- PROJECT LOGO -->
+<p align="center">
+  <a href="https://github.com/shindeamul76/url-shortner-app.git">
+   <img src="https://media.licdn.com/dms/image/v2/D560BAQH42HXoIAZWdQ/company-logo_200_200/company-logo_200_200/0/1712558218291/thealteroffice_logo?e=2147483647&v=beta&t=TbwDmIQs8A0K5y6V50ANAKz9X8OZToWkkYtpi1phLC4" alt="Logo">
+  </a>
+
+  <h3 align="center">URL Shortner</h3>
+
+  <p align="center">
+    Become a Certified Career Planner.
+    <br />
+    <a href="https://tao-o16p.onrender.com/"><strong>Deployed URL »</strong></a>
+    <br />
+    <br />
+    <a href="https://github.com/shindeamul76/url-shortner-app.git">Discussions</a>
+    ·
+    <a href="https://www.thealteroffice.com/">Website</a>
+    ·
+    <a href="https://github.com/shindeamul76/url-shortner-app.git/issues">Issues</a>
+    ·
+    <a href="https://www.thealteroffice.com/">Roadmap</a>
+  </p>
+</p>
+
+
 # URL Shortener Application
 
 A **Custom URL Shortener API** designed to create short URLs from long and cumbersome ones, providing advanced analytics, user authentication via Google Sign-In, rate limiting, and caching for performance optimization. The system is containerized for easy deployment and scalability, making it a reliable solution for URL management.
@@ -120,10 +145,10 @@ yarn install
 yarn run prisma:migrate-deploy
 ```
 
-#### 6. Seed the Database
+#### 6. Generate prisma migratioons locally 
 
 ```bash
-yarn run prisma:seed
+npx prisma generate
 ```
 
 #### 7. Start the Application
@@ -216,11 +241,40 @@ Redirects to the original URL.
 
 ## Testing
 
-Run tests to validate the functionality of the endpoints:
+### Testing the API Workflow
 
-```bash
-yarn test
-```
+1. **Login Using Google Authentication**
+   - Hit the `/auth/google` API endpoint for user authentication.
+   - On successful login, the API will save the `access_token` and `refresh_token` in cookies.
+   - The response will also include the `access_token`.
+
+2. **Create a Short URL**
+   - Use the `access_token` in the Authorization header as a Bearer token.
+   - Hit the `/api/shorten` endpoint with the required payload to create a short URL.
+
+   #### Example Authorization Header:
+   ```http
+   Authorization: Bearer <access_token>
+   ```
+
+   #### Example Request:
+   ```json
+   {
+     "longUrl": "https://example.com",
+     "customAlias": "example",
+     "topic": "activation"
+   }
+   ```
+
+3. **Access Analytics APIs**
+   - Use the same `access_token` for authentication.
+   - Endpoints:
+     - `/api/analytics/{alias}`: Get detailed analytics for a specific short URL.
+     - `/api/analytics/topic/{topic}`: Get topic-based analytics.
+     - `/api/analytics/overall`: Get overall analytics for all URLs.
+
+4. **Redirect Short URL**
+   - Access the `/api/shorten/{alias}` endpoint to be redirected to the original URL.
 
 ---
 
@@ -242,6 +296,7 @@ yarn test
 The application can be deployed on cloud platforms such as [Render](https://render.com).
 
 Deployment URL: **[Backend URL](https://tao-o16p.onrender.com/)**
+
 
 
 
