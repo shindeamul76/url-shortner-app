@@ -1,4 +1,4 @@
-import { Controller, Get, Request, Res, UseGuards, UseInterceptors } from '@nestjs/common';
+import { Controller, Get, Query, Request, Res, UseGuards, UseInterceptors } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { Response } from 'express';
 import { ConfigService } from '@nestjs/config';
@@ -38,8 +38,16 @@ export class AuthController {
  * Success endpoint to indicate successful authentication.
  */
   @Get('success')
-  async authSuccess() {
-    return { message: 'OK', status: 'success' };
+  async authSuccess(
+    @Query('access_token') accessToken: string,
+    @Query('refresh_token') refreshToken: string,
+  ) {
+    return {
+      message: 'OK',
+      status: 'success',
+      accessToken,
+      refreshToken,
+    };
   }
 
 

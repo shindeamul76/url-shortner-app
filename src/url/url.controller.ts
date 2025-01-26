@@ -9,6 +9,7 @@ import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
 import { errorHtml } from './helper';
 
 import { get } from 'http';
+import { StatusCodes } from 'http-status-codes';
 
 
 
@@ -32,9 +33,16 @@ export class UrlController {
 
     @Post('api/shorten')
     @UseGuards(JwtAuthGuard)
-    async createShortUrl(@Body() createShortUrlDto: CreateShortUrlDto, @Req() req) {
-        const userId = req.user.id; // Extract authenticated user ID
-        return this.urlService.createShortUrl(createShortUrlDto, userId);
+    async createShortUrl(@Body() createShortUrlDto: CreateShortUrlDto, @Req() req, @Res() res: Response) {
+        const userId = req.user.id; 
+        const createUrl = await this.urlService.createShortUrl(createShortUrlDto, userId);
+
+        if(E.isRight(createUrl)) {
+            res.status(StatusCodes.OK).json({
+                shortUrl: createUrl.right.shortUrl,
+                createdAt: createUrl.right.createdAt
+            })
+        }
     }
 
 

@@ -88,6 +88,10 @@ export const authCookieHandler = (
     if (!whitelistedOrigins.includes(redirectUrl))
       // if it is not redirect by default to REDIRECT_URL
       redirectUrl = configService.get('REDIRECT_URL');
+
+      const url = new URL(redirectUrl);
+      url.searchParams.append('access_token', authTokens.access_token);
+      url.searchParams.append('refresh_token', authTokens.refresh_token);
   
-    return res.status(StatusCodes.OK).redirect(redirectUrl);
+    return res.status(StatusCodes.OK).redirect(url.toString());
   };
