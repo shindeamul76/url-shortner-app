@@ -17,16 +17,14 @@ function setupSwagger(app) {
 
     .addApiKey(
       {
-        type: 'apiKey',
-        name: 'Authorization',
-        in: 'header',
+        type: 'http',
         scheme: 'bearer',
-        bearerFormat: 'Bearer',
+        bearerFormat: 'JWT',
       },
-      'infra-token',
+      'JWT Token',
     )
+    .addTag('url-shortner')
     .build();
-    // .addTag('url-shortner')
     // .build();
 
   const documentFactory = () => SwaggerModule.createDocument(app, config);
