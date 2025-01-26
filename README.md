@@ -1,7 +1,7 @@
 <!-- PROJECT LOGO -->
 <p align="center">
   <a href="https://github.com/shindeamul76/url-shortner-app.git">
-   <img src="https://tao-o16p.onrender.com/api/shorten/e438f88d" alt="Logo">
+   <img src="https://media.licdn.com/dms/image/v2/D560BAQH42HXoIAZWdQ/company-logo_200_200/company-logo_200_200/0/1712558218291/thealteroffice_logo?e=2147483647&v=beta&t=TbwDmIQs8A0K5y6V50ANAKz9X8OZToWkkYtpi1phLC4" alt="Logo">
   </a>
 
   <h3 align="center">URL Shortner</h3>
@@ -9,7 +9,7 @@
   <p align="center">
     Become a Certified Career Planner.
     <br />
-    <a href="https://www.thealteroffice.com/"><strong>Learn more »</strong></a>
+    <a href="https://tao-o16p.onrender.com/"><strong>Deployed URL »</strong></a>
     <br />
     <br />
     <a href="https://github.com/shindeamul76/url-shortner-app.git">Discussions</a>
@@ -233,7 +233,7 @@ yarn test
 - Solution: Leveraged in-memory counters and Redis to enforce limits.
 
 ### 3. **Analytics Tracking**
-- Solution: Integrated middleware for logging user agent, geolocation, and timestamps.
+- Solution: Integrated for logging user agent, geolocation, and timestamps.
 
 ---
 
