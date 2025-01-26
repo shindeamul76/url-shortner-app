@@ -36,9 +36,9 @@ export class UrlService {
 
     // Enforce rate limiting
     const rateLimitResponse = await this.enforceRateLimit(userId);
-    if (E.isLeft(rateLimitResponse)) {
-      return rateLimitResponse;
-    }
+
+    if (E.isLeft(rateLimitResponse)) return rateLimitResponse;
+ 
 
     // Check if custom alias is already in use
     if (shortAlias) {
@@ -75,7 +75,7 @@ export class UrlService {
    * Checks and enforces rate limits for URL creation.
    * @param userId User ID
    */
-  private async enforceRateLimit(userId: number) {
+  private async enforceRateLimit(userId: number): Promise<E.Either<{ message: string; statusCode: number }, boolean>> {
     const now = new Date();
 
     // Fetch the user's rate limit record
@@ -97,6 +97,7 @@ export class UrlService {
       return E.right(true);
     }
 
+
     // Check if the rate limit window has expired
     if (rateLimit.timeWindowEnd < now) {
       // Reset the rate limit
@@ -117,7 +118,8 @@ export class UrlService {
       return E.left(Errors.RATE_LIMIT_EXCEEDED);
     }
 
-    await this.updateRateLimit(userId, rateLimit.requestCount);
+   const updatedRateLimit = await this.updateRateLimit(userId, rateLimit.requestCount);
+   if (E.isLeft(updatedRateLimit)) return updatedRateLimit;
     return E.right(true);
   }
 
@@ -127,21 +129,20 @@ export class UrlService {
    * @param requestCount Current request count
    */
   async updateRateLimit(userId: number, requestCount: number) {
-    return pipe(
-      E.tryCatch(
-        () =>
-          this.prisma.rateLimit.update({
-            where: { userID: userId },
-            data: {
-              requestCount: requestCount + 1,
-            },
-          }),
-        () => ({
-          message: FAILED_TO_UPDATE_RATE_LIMIT,
-          statusCode: StatusCodes.BAD_REQUEST,
-        }),
-      ),
-    );
+    try {
+      await this.prisma.rateLimit.update({
+        where: { userID: userId },
+        data: {
+          requestCount: requestCount + 1,
+        },
+      });
+      return E.right(true); // Indicate success
+    } catch (error) {
+      return E.left({
+        message: FAILED_TO_UPDATE_RATE_LIMIT,
+        statusCode: StatusCodes.BAD_REQUEST,
+      });
+    }
   }
 
   /**

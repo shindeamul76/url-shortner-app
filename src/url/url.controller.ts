@@ -10,9 +10,11 @@ import { errorHtml } from './helper';
 
 import { get } from 'http';
 import { StatusCodes } from 'http-status-codes';
+import { ThrottlerBehindProxyGuard } from 'src/guards/throttler-behind-proxy.guard';
 
 
 
+@UseGuards(ThrottlerBehindProxyGuard)
 @Controller('')
 export class UrlController {
 
@@ -35,7 +37,13 @@ export class UrlController {
     @UseGuards(JwtAuthGuard)
     async createShortUrl(@Body() createShortUrlDto: CreateShortUrlDto, @Req() req, @Res() res: Response) {
         const userId = req.user.id; 
-        const createUrl = await this.urlService.createShortUrl(createShortUrlDto, userId);
+        const createUrl: E.Either<{ message: string; statusCode: StatusCodes }, { shortUrl: string; createdAt: Date }> = await this.urlService.createShortUrl(createShortUrlDto, userId);
+
+        if(E.isLeft(createUrl)) {
+            res.status(createUrl.left.statusCode).json({
+                error: createUrl.left.message
+            })
+        }
 
         if(E.isRight(createUrl)) {
             res.status(StatusCodes.OK).json({

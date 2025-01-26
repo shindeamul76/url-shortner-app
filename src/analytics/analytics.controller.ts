@@ -1,4 +1,4 @@
-import { Controller, Get, Param, Query, Req, Res, UseGuards } from '@nestjs/common';
+import { Controller, Get, Param, Req, Res, UseGuards } from '@nestjs/common';
 import { AnalyticsService } from './analytics.service';
 import * as E from 'fp-ts/Either';
 import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
@@ -44,7 +44,6 @@ export class AnalyticsController {
     @UseGuards(JwtAuthGuard)
     async getUrlAnalytics(@Param('alias') alias: string, @Res() res: Response) {
       const analytics = await this.analyticsService.getUrlAnalytics(alias);
-      console.log(analytics, "analytics");
     
       if (E.isLeft(analytics)) {
         return res

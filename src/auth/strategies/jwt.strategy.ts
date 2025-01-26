@@ -10,7 +10,6 @@ import { UserService } from 'src/user/user.service';
 import { ConfigService } from '@nestjs/config';
 import * as O from 'fp-ts/Option';
 import {
-  COOKIES_NOT_FOUND,
   INVALID_ACCESS_TOKEN,
   USER_NOT_FOUND,
 } from 'src/errors';

@@ -6,11 +6,9 @@ import { RESTError } from 'src/types/RESTError';
 import { UserService } from 'src/user/user.service';
 import { StatusCodes } from 'http-status-codes';
 import * as O from 'fp-ts/Option';
-import { Response } from 'express';
 import * as E from 'fp-ts/Either';
 import { AccessTokenPayload, AuthTokens, RefreshTokenPayload } from 'src/types/AuthTokens';
 import * as argon2 from 'argon2';
-// import * as bcrypt from 'bcrypt';
 import { AuthUser } from 'src/types/AuthUser';
 import { INVALID_REFRESH_TOKEN, USER_NOT_FOUND } from 'src/errors';
 
