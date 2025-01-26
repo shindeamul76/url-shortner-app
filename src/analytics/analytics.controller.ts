@@ -21,6 +21,7 @@ export class AnalyticsController {
   @UseGuards(JwtAuthGuard)
   async getOverallAnalytics(@Req() req, @Res() res: Response) {
     const userId = req.user.id;
+    
     const analytics = await this.analyticsService.getOverallAnalytics(userId);
   
     if (E.isLeft(analytics)) {
